@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:timetracker/screens/login_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -9,18 +11,36 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.onAuthStateChanged,
+        builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
+          if (snapshot.hasData && snapshot.data.email != null) {
+            var userPath = snapshot.data.email;
+
+            return MyHomePage(title: userPath);
+//            return StreamBuilder(
+//                stream: Firestore.instance.collection(userPath).snapshots(),
+//                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+//                  if (snapshot.hasData) {
+//                    return BlocProvider(
+//                      uuid: Uuid(),
+//                      goalsBloc: GoalsBloc(
+//                          userPath: userPath,
+//                          initialDataFromFirebase: snapshot.data.documents),
+//                      child: HomeScreen(),
+//                    );
+//                  } else {
+//                    return Text("Fettching data from firebase");
+//                  }
+//                });
+          } else {
+            return LoginScreen();
+          }
+        },
+      ),
+//      home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
