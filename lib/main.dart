@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:timetracker/models/activity.dart';
 import 'package:timetracker/screens/login_screen.dart';
+import 'package:timetracker/widgets/activity_list_tile.dart';
 
 void main() => runApp(MyApp());
 
@@ -39,39 +41,134 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   int _counter = 0;
+  AppLifecycleState _notification;
+  Future _loading;
+  TextEditingController textEditingController;
 
-  void _incrementCounter() {
+  @override
+  void initState() {
+    _loading = _load();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
     setState(() {
-      _counter++;
+      _notification = state;
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.userId),
-      ),
-      body: StreamBuilder(
-        stream: Firestore.instance.collection(widget.userId).snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshots) {
-          if (snapshots.hasData) {
-            var data = snapshots.data;
-            return Text("Data fetched");
-          } else {
-            return CircularProgressIndicator();
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
+
+  Future<void> _load() async {
+    await Firestore.instance.settings(timestampsInSnapshotsEnabled: true);
+    var user = await FirebaseAuth.instance.currentUser();
+    print('loaded with user: ${user.uid}');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    textEditingController = TextEditingController();
+
+    if ((_notification == null || _notification == AppLifecycleState.resumed)) {
+      return Scaffold(
+        appBar: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text(widget.userId),
+        ),
+        body: FutureBuilder(
+            future: _loading,
+            builder: (context, snapshot) {
+              return StreamBuilder(
+                stream: getAllActivities(widget.userId),
+                builder: (context, AsyncSnapshot<List<Activity>> snapshots) {
+                  if (snapshots.hasData) {
+                    var activities = snapshots.data;
+                    activities.sort((Activity a, Activity b) =>
+                        a.getEndTime.compareTo(b.getEndTime));
+                    return PageView.builder(
+                      itemCount: DateTime.now().month,
+                      itemBuilder: (context, int selectedMonth) {
+                        var selectedMonthActivities = activities
+                            .where((Activity a) =>
+                                a.startTime.month ==
+                                DateTime.now().month - selectedMonth)
+                            .toList()
+                            .reversed
+                            .toList();
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CustomScrollView(
+                            slivers: <Widget>[
+                              SliverToBoxAdapter(
+                                child: TextFormField(
+                                  onFieldSubmitted: (String value) {
+                                    textEditingController.clear();
+
+                                    var now = DateTime.now();
+
+                                    if (selectedMonthActivities.length > 0) {
+                                      var lastActivity =
+                                          selectedMonthActivities[0];
+                                      lastActivity.endTime = now;
+                                      lastActivity.save(widget.userId);
+                                    }
+
+                                    var newActivity = Activity();
+                                    newActivity.title = value;
+                                    newActivity.startTime = now;
+                                    newActivity.save(widget.userId);
+                                  },
+                                  controller: textEditingController,
+                                  autofocus: true,
+                                  decoration:
+                                      InputDecoration(hintText: "I am ..."),
+                                ),
+                              ),
+                              SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (BuildContext context, int index) {
+                                    return ActivityListTile(
+                                      activity: selectedMonthActivities[index],
+                                      isTiking: index == 0,
+                                    );
+                                  },
+                                  childCount: selectedMonthActivities.length,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                },
+              );
+            }),
+      );
+    } else {
+      return Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              "Don't worry the timer is not ticking now. But when you open app I will add the missed time and continue counting ;) for you",
+              style: TextStyle(fontSize: 32),
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  void _onSubmit(String value) {}
 }
