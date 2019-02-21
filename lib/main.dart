@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
           if (snapshot.hasData && snapshot.data.email != null) {
             var userPath = snapshot.data.email;
-            return MyHomePage(title: userPath);
+            return MyHomePage(userId: userPath);
           } else {
             return LoginScreen();
           }
@@ -31,9 +31,9 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key key, this.userId}) : super(key: key);
 
-  final String title;
+  final String userId;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -54,16 +54,16 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text(widget.userId),
       ),
       body: StreamBuilder(
-        stream: Firestore.instance.collection(widget.title).snapshots(),
+        stream: Firestore.instance.collection(widget.userId).snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshots) {
           if (snapshots.hasData) {
             var data = snapshots.data;
             return Text("Data fetched");
           } else {
-            return Text("Fetching data from firebase");
+            return CircularProgressIndicator();
           }
         },
       ),
