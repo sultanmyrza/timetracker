@@ -104,13 +104,26 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                             .reversed
                             .toList();
                         return Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: CustomScrollView(
                             slivers: <Widget>[
+                              SliverToBoxAdapter(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    selectedMonthName(selectedMonth),
+                                    style: TextStyle(fontSize: 32),
+                                  ),
+                                ),
+                              ),
                               SliverToBoxAdapter(
                                 child: TextFormField(
                                   onFieldSubmitted: (String value) {
                                     textEditingController.clear();
+
+                                    value = value.trim();
+
+                                    if (value.length == 0) return;
 
                                     var now = DateTime.now();
 
@@ -171,4 +184,23 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   void _onSubmit(String value) {}
+
+  String selectedMonthName(int selectedMonth) {
+    selectedMonth = DateTime.now().month - selectedMonth - 1;
+    var months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
+    return months[selectedMonth];
+  }
 }

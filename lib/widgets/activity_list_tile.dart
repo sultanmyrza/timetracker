@@ -48,6 +48,7 @@ class _ActivityListTileState extends State<ActivityListTile> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(widget.activity.title),
           Row(
