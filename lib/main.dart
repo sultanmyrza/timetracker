@@ -177,7 +177,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Battery efficient!!!",
+                        style: TextStyle(fontSize: 48),
+                      ),
+                    ),
+                  ),
                   Text(
                     "Don't worry the timer is not ticking now. But when you open app I will add the missed time and continue counting ;) for you",
                     style: TextStyle(fontSize: 32),
