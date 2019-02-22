@@ -235,6 +235,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   Future<void> _askToRemind(context) async {
     await showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           return SimpleDialog(
@@ -268,22 +269,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         ),
       );
     }).toList();
-    return <Widget>[
-      SimpleDialogOption(
-        onPressed: () {
-          Navigator.of(context).pop();
-          print('Treasury department');
-        },
-        child: const Text('Treasury department'),
-      ),
-      SimpleDialogOption(
-        onPressed: () {
-          Navigator.of(context).pop();
-          print('State department');
-        },
-        child: const Text('State department'),
-      ),
-    ];
   }
 
   String selectedMonthName(int selectedMonth) {
