@@ -170,12 +170,21 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       );
     } else {
       return Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              "Don't worry the timer is not ticking now. But when you open app I will add the missed time and continue counting ;) for you",
-              style: TextStyle(fontSize: 32),
+        body: Container(
+          color: Colors.white,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    "Don't worry the timer is not ticking now. But when you open app I will add the missed time and continue counting ;) for you",
+                    style: TextStyle(fontSize: 32),
+                  ),
+                  Image.asset("images/troll.jpg"),
+                ],
+              ),
             ),
           ),
         ),
