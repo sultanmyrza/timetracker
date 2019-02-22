@@ -50,7 +50,10 @@ class _ActivityListTileState extends State<ActivityListTile> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(widget.activity.title),
+          Text(
+            widget.activity.title,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
