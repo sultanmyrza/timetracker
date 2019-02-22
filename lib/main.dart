@@ -119,6 +119,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                               SliverToBoxAdapter(
                                 child: TextFormField(
                                   onFieldSubmitted: (String value) {
+                                    _askToRemind(context);
+
                                     textEditingController.clear();
 
                                     value = value.trim();
@@ -142,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                   controller: textEditingController,
                                   autofocus: true,
                                   decoration:
-                                      InputDecoration(hintText: "I am ..."),
+                                      InputDecoration(hintText: "I will ..."),
                                 ),
                               ),
                               SliverList(
@@ -203,6 +205,86 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   void _onSubmit(String value) {}
+
+  List<Map<String, dynamic>> reminders = [
+    {'title': "Default: 10 hours. if you will sleep", "value": 10 * 3600},
+    {'title': "5 mins. good for rest", "value": 5 * 60},
+    {'title': "10 mins. ", "value": 60 * 10},
+    {
+      'title': "15 mins. Good for easy task, shower, prep breakfast",
+      "value": 60 * 15
+    },
+    {
+      'title': "30 mins. Good for video call or transportation, lunch",
+      "value": 60 * 30
+    },
+    {'title': "45 mins. Good for focused work", "value": 60 * 45},
+    {'title': "1 hour. ", "value": 3600},
+    {'title': "2 hours. ", "value": 3600 * 2},
+    {'title': "3 hours. ", "value": 3600 * 3},
+    {'title': "4 hours. Deep work", "value": 3600 * 4},
+    {'title': "5 hours. ", "value": 3600 * 5},
+    {'title': "6 hours. ", "value": 3600 * 6},
+    {
+      'title':
+          "8 hours. Use for sleep, dont use 8 hours for work because you go to toilet, "
+          "chat etc. instead log all of them so you can know how long you really worked",
+      "value": 3600 * (60 * 8),
+    },
+  ];
+
+  Future<void> _askToRemind(context) async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            title: const Text('it will take...'),
+            children: children(context),
+          );
+        });
+  }
+
+  List<Widget> children(BuildContext context) {
+    return reminders.map<Widget>((Map<String, dynamic> reminder) {
+      var split = (reminder['title'] as String).split('.');
+      var time = split[0];
+      var description = split[1];
+
+      return SimpleDialogOption(
+        onPressed: () {
+          Navigator.of(context).pop();
+          print(reminder['title']);
+          print(reminder['value']);
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              time,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            Text(description),
+          ],
+        ),
+      );
+    }).toList();
+    return <Widget>[
+      SimpleDialogOption(
+        onPressed: () {
+          Navigator.of(context).pop();
+          print('Treasury department');
+        },
+        child: const Text('Treasury department'),
+      ),
+      SimpleDialogOption(
+        onPressed: () {
+          Navigator.of(context).pop();
+          print('State department');
+        },
+        child: const Text('State department'),
+      ),
+    ];
+  }
 
   String selectedMonthName(int selectedMonth) {
     selectedMonth = DateTime.now().month - selectedMonth - 1;
