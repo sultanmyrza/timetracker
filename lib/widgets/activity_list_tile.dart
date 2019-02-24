@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:timetracker/models/activity.dart';
+import 'package:timetracker/screens/activity_detail_screen.dart';
 
 class ActivityListTile extends StatefulWidget {
   final Activity activity;
@@ -23,11 +24,9 @@ class _ActivityListTileState extends State<ActivityListTile> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print('_ActivityListTileState.initState');
     if (widget.isTiking) {
       _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
         if (mounted) {
-          print('update the duration in ${widget.activity.title}');
           setState(() {});
         } else {
           _timer.cancel();
@@ -39,47 +38,55 @@ class _ActivityListTileState extends State<ActivityListTile> {
 
   @override
   void dispose() {
-    print('_ActivityListTileState.dispose');
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            widget.activity.title,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(ActivityDetailScreen.route(
+          activity: widget.activity,
+        ));
+      },
+      child: Card(
+        child: Container(
+          padding: EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Column(
-                children: <Widget>[
-                  Text("start time"),
-                  Text(formatDateHhMmSs(widget.activity.startTime)),
-                ],
+              Text(
+                widget.activity.title,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              Column(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
-                  Text("end time"),
-                  widget.isTiking
-                      ? Text("--:--:--")
-                      : Text(formatDateHhMmSs(widget.activity.getEndTime)),
-                ],
-              ),
-              Column(
-                children: <Widget>[
-                  Text("Duration"),
-                  Text(widget.activity.getActivityDuration()),
+                  Column(
+                    children: <Widget>[
+                      Text("start time"),
+                      Text(formatDateHhMmSs(widget.activity.startTime)),
+                    ],
+                  ),
+                  Column(
+                    children: <Widget>[
+                      Text("end time"),
+                      widget.isTiking
+                          ? Text("--:--:--")
+                          : Text(formatDateHhMmSs(widget.activity.getEndTime)),
+                    ],
+                  ),
+                  Column(
+                    children: <Widget>[
+                      Text("Duration"),
+                      Text(widget.activity.getActivityDuration()),
+                    ],
+                  ),
                 ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -73,6 +73,14 @@ class Activity {
     return result;
   }
 
+  String get startTimeHhMmSs => getDisplayHhMmSs(this.startTime);
+
+  String get endTimeHhMmSs => getDisplayHhMmSs(this.getEndTime);
+
   DateTime get getEndTime =>
       this.endTime == null ? DateTime.now() : this.endTime;
+
+  String getDisplayHhMmSs(DateTime time) {
+    return "${time.hour}:${time.minute}";
+  }
 }
