@@ -129,6 +129,47 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                     }),
               ],
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  widget.activity.getEndTimeYyMmDd,
+                  style: Theme.of(context).textTheme.display1,
+                ),
+                IconButton(
+                    icon: Icon(Icons.mode_edit),
+                    onPressed: () async {
+                      var selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: widget.activity.getEndTime,
+                        firstDate: DateTime(2018),
+                        lastDate: DateTime(2050),
+                      );
+                      var updatedTime = DateTime(
+                        selectedDate.year,
+                        selectedDate.month,
+                        selectedDate.day,
+                        selectedDate.hour,
+                        selectedDate.minute,
+                      );
+                      widget.activity.endTime = updatedTime;
+                      var firebaseUser =
+                          await FirebaseAuth.instance.currentUser();
+
+                      try {
+                        widget.activity.save(firebaseUser.email);
+                      } on Exception {
+                        // TODO: fix fire base related error on activity save
+                      }
+                      // TODO: use firebase
+                      setState(() {});
+                      final snackBar = SnackBar(
+                          content: Text(
+                              'End time update to ${updatedTime.toString()}'));
+                      Scaffold.of(context).showSnackBar(snackBar);
+                    }),
+              ],
+            ),
             Text(
               widget.activity.getActivityDuration(),
               style: Theme.of(context).textTheme.display1,

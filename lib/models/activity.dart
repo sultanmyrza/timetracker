@@ -20,6 +20,8 @@ class Activity {
   DateTime startTime;
   DateTime endTime;
 
+  var dayNames = ['Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun'];
+
   Activity();
 
   factory Activity.fromDoc(DocumentSnapshot doc) {
@@ -34,6 +36,15 @@ class Activity {
       print(e.toString());
     }
     return activity;
+  }
+
+  String get getEndTimeYyMmDd {
+    var year = getEndTime.year;
+    var month = getEndTime.month;
+    var day = getEndTime.day;
+    var weekday = getEndTime.weekday;
+
+    return "$year-$month-$day (${dayNames[weekday - 1]})";
   }
 
   Future<void> save(String userId) async {
@@ -77,8 +88,13 @@ class Activity {
 
   String get endTimeHhMmSs => getDisplayHhMmSs(this.getEndTime);
 
-  DateTime get getEndTime =>
-      this.endTime == null ? DateTime.now() : this.endTime;
+  DateTime get getEndTime {
+    if (this.endTime == null) {
+      return DateTime.now();
+    } else {
+      return this.endTime;
+    }
+  }
 
   String getDisplayHhMmSs(DateTime time) {
     return "${time.hour}:${time.minute}";
