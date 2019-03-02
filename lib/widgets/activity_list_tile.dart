@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:timetracker/models/activity.dart';
 import 'package:timetracker/screens/activity_detail_screen.dart';
 
@@ -19,7 +20,23 @@ class ActivityListTile extends StatefulWidget {
 }
 
 class _ActivityListTileState extends State<ActivityListTile> {
+  static const platform = const MethodChannel('com.u2731.timetracker/scheduled_notification');
   Timer _timer;
+
+  Future<void> scheduleNotification() async {
+    try {
+      final String responseMessage = await platform.invokeMethod("scheduleNotification");
+      print(responseMessage);
+    } on Exception catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<void> cancelScheduledNotification() async {
+    // TODO: implement
+    throw UnimplementedError();
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -71,9 +88,7 @@ class _ActivityListTileState extends State<ActivityListTile> {
                   Column(
                     children: <Widget>[
                       Text("end time"),
-                      widget.isTiking
-                          ? Text("--:--:--")
-                          : Text(formatDateHhMmSs(widget.activity.getEndTime)),
+                      widget.isTiking ? Text("--:--:--") : Text(formatDateHhMmSs(widget.activity.getEndTime)),
                     ],
                   ),
                   Column(

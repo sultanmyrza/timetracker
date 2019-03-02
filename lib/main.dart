@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:timetracker/models/activity.dart';
 import 'package:timetracker/screens/login_screen.dart';
 import 'package:timetracker/widgets/activity_list_tile.dart';
@@ -42,13 +45,31 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
-  int _counter = 0;
   AppLifecycleState _notification;
   Future _loading;
   TextEditingController textEditingController;
 
+  static const platform =
+      const MethodChannel('com.u2731.timetracker/notifications');
+
+  Future<void> scheduleNotification(durationInSeconds) async {
+    try {
+      String response = await platform.invokeMethod(
+          "scheduleNotification", durationInSeconds);
+      print(response);
+    } on Exception catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<void> cancelScheduledNotification() async {
+    // TODO: implement cancel Scheduled Notification
+    throw UnimplementedError();
+  }
+
   @override
   void initState() {
+    super.initState();
     _loading = _load();
     WidgetsBinding.instance.addObserver(this);
   }
@@ -240,20 +261,22 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         builder: (BuildContext context) {
           return SimpleDialog(
             title: const Text('it will take...'),
-            children: children(context),
+            children: _buildReminders(context),
           );
         });
   }
 
-  List<Widget> children(BuildContext context) {
+  List<Widget> _buildReminders(BuildContext context) {
     return reminders.map<Widget>((Map<String, dynamic> reminder) {
       var split = (reminder['title'] as String).split('.');
       var time = split[0];
       var description = split[1];
+      var durationInSeconds = reminder['value'];
 
       return SimpleDialogOption(
         onPressed: () {
           Navigator.of(context).pop();
+          scheduleNotification(durationInSeconds);
           print(reminder['title']);
           print(reminder['value']);
         },
